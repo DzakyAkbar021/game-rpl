@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Monster Arena</title>
+
+  <!-- Font opsional dari Google Fonts. Jika offline, game otomatis memakai font sistem. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div id="app">
+
+  <!-- ====================== MENU UTAMA ====================== -->
+  <section id="screen-menu" class="screen active">
+    <canvas id="menu-bg" width="1280" height="640"></canvas>
+    <div class="menu-overlay">
+      <div class="logo">
+        <span class="logo-top">DIGITAL</span>
+        <span class="logo-main">MONSTER</span>
+        <span class="logo-sub">ARENA</span>
+      </div>
+
+      <nav class="menu-buttons">
+        <button class="btn-neon primary" data-action="play">▶ PLAY</button>
+        <button class="btn-neon" data-action="characters">CHARACTER SELECT</button>
+        <button class="btn-neon" data-action="arenas">ARENA SELECT</button>
+        <button class="btn-neon" data-action="settings">SETTINGS</button>
+      </nav>
+
+      <div class="menu-selected">
+        <span>MONSTER: <b id="menu-char-name">-</b></span>
+        <span class="sep">◆</span>
+        <span>ARENA: <b id="menu-arena-name">-</b></span>
+      </div>
+
+      <div class="menu-controls">
+        <span><kbd>A</kbd><kbd>D</kbd> Gerak</span>
+        <span><kbd>W</kbd> Lompat</span>
+        <span><kbd>J</kbd> Serang</span>
+        <span><kbd>K</kbd><kbd>L</kbd><kbd>U</kbd> Skill</span>
+        <span><kbd>I</kbd> Ultimate</span>
+        <span><kbd>Space</kbd> Bertahan</span>
+        <span><kbd>P</kbd> Pause</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== PILIH KARAKTER ====================== -->
+  <section id="screen-characters" class="screen">
+    <div class="panel-bg"></div>
+    <h2 class="screen-title">PILIH MONSTER</h2>
+    <div class="select-layout">
+      <div id="char-grid" class="card-grid"></div>
+      <aside id="char-detail" class="detail-panel"></aside>
+    </div>
+    <div class="opp-row"><span>LAWAN CPU:</span><div class="seg" id="opp-seg"></div></div>
+    <div class="screen-buttons">
+      <button class="btn-neon small" data-action="back">◀ KEMBALI</button>
+      <button class="btn-neon small primary" data-action="confirm-char">PILIH &amp; LANJUT</button>
+    </div>
+  </section>
+
+  <!-- ====================== PILIH ARENA ====================== -->
+  <section id="screen-arenas" class="screen">
+    <div class="panel-bg"></div>
+    <h2 class="screen-title">PILIH ARENA</h2>
+    <div id="arena-grid" class="arena-grid"></div>
+    <div class="screen-buttons">
+      <button class="btn-neon small" data-action="back">◀ KEMBALI</button>
+      <button class="btn-neon small primary" data-action="confirm-arena">PILIH &amp; LANJUT</button>
+    </div>
+  </section>
+
+  <!-- ====================== SETTINGS ====================== -->
+  <section id="screen-settings" class="screen">
+    <div class="panel-bg"></div>
+    <h2 class="screen-title">SETTINGS</h2>
+    <div class="settings-box">
+      <div class="setting-row">
+        <label>Musik Latar</label>
+        <button class="toggle" id="set-music" data-on="true">ON</button>
+      </div>
+      <div class="setting-row">
+        <label>Volume Musik</label>
+        <input type="range" id="set-music-vol" min="0" max="100" value="50" />
+      </div>
+      <div class="setting-row">
+        <label>Efek Suara</label>
+        <button class="toggle" id="set-sfx" data-on="true">ON</button>
+      </div>
+      <div class="setting-row">
+        <label>Volume Efek</label>
+        <input type="range" id="set-sfx-vol" min="0" max="100" value="80" />
+      </div>
+      <div class="setting-row">
+        <label>Layar Bergetar</label>
+        <button class="toggle" id="set-shake" data-on="true">ON</button>
+      </div>
+      <div class="setting-row">
+        <label>Kesulitan AI</label>
+        <div class="seg" id="set-difficulty">
+          <button data-value="easy">MUDAH</button>
+          <button data-value="normal">NORMAL</button>
+          <button data-value="hard">SULIT</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <label>Waktu per Ronde</label>
+        <div class="seg" id="set-time">
+          <button data-value="45">45</button>
+          <button data-value="60">60</button>
+          <button data-value="99">99</button>
+        </div>
+      </div>
+    </div>
+    <div class="screen-buttons">
+      <button class="btn-neon small" data-action="back">◀ KEMBALI</button>
+    </div>
+  </section>
+
+  <!-- ====================== PERTARUNGAN ====================== -->
+  <section id="screen-game" class="screen">
+    <div id="game-wrap">
+      <div id="stage">
+        <canvas id="game-canvas" width="1280" height="640"></canvas>
+        <div class="scanlines"></div>
+
+        <!-- HUD -->
+        <div id="hud">
+          <div class="hud-side left">
+            <div class="hud-name"><span id="p1-name">P1</span><small id="p1-tag">PLAYER</small></div>
+            <div class="bar hp"><div class="ghost" id="p1-ghost"></div><div class="fill" id="p1-hp"></div><span class="bar-text" id="p1-hp-text"></span></div>
+            <div class="bar energy"><div class="fill" id="p1-en"></div><span class="bar-label">ENERGY</span></div>
+            <div class="bar guard"><div class="fill" id="p1-guard"></div></div>
+            <div class="pips" id="p1-pips"></div>
+            <div class="combo-box" id="p1-combo"></div>
+          </div>
+
+          <div class="hud-center">
+            <div id="timer">60</div>
+            <div id="round-label">ROUND 1</div>
+          </div>
+
+          <div class="hud-side right">
+            <div class="hud-name"><small id="p2-tag">CPU</small><span id="p2-name">P2</span></div>
+            <div class="bar hp"><div class="ghost" id="p2-ghost"></div><div class="fill" id="p2-hp"></div><span class="bar-text" id="p2-hp-text"></span></div>
+            <div class="bar energy"><div class="fill" id="p2-en"></div><span class="bar-label">ENERGY</span></div>
+            <div class="bar guard"><div class="fill" id="p2-guard"></div></div>
+            <div class="pips" id="p2-pips"></div>
+            <div class="combo-box" id="p2-combo"></div>
+          </div>
+        </div>
+
+        <div id="announce"></div>
+
+        <button id="btn-pause" title="Pause (P)">❚❚</button>
+
+        <!-- Layar Pause -->
+        <div id="pause-overlay" class="overlay hidden">
+          <div class="overlay-box">
+            <h2>PAUSE</h2>
+            <button class="btn-neon small primary" data-action="resume">LANJUT</button>
+            <button class="btn-neon small" data-action="restart">ULANGI PERTARUNGAN</button>
+            <button class="btn-neon small" data-action="quit">MENU UTAMA</button>
+          </div>
+        </div>
+
+        <!-- Layar Menang / Kalah -->
+        <div id="result-overlay" class="overlay hidden">
+          <div class="overlay-box result">
+            <h1 id="result-title">VICTORY</h1>
+            <p id="result-sub"></p>
+            <div class="result-stats" id="result-stats"></div>
+            <button class="btn-neon small primary" data-action="rematch">⟳ REMATCH</button>
+            <button class="btn-neon small" data-action="characters-from-game">GANTI MONSTER</button>
+            <button class="btn-neon small" data-action="quit">MENU UTAMA</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kontrol di layar (bisa diklik / disentuh) -->
+      <div id="controls">
+        <div class="pad move">
+          <button class="pad-btn" data-key="a">◀<small>A</small></button>
+          <button class="pad-btn" data-key="w">▲<small>W</small></button>
+          <button class="pad-btn" data-key="d">▶<small>D</small></button>
+        </div>
+        <div class="pad actions">
+          <button class="act" data-key="j"><b>J</b><span>SERANG</span></button>
+          <button class="act skill" data-key="k" id="btn-k"><i class="cd"></i><b>K</b><span class="sname">-</span><em class="ctext"></em></button>
+          <button class="act skill" data-key="l" id="btn-l"><i class="cd"></i><b>L</b><span class="sname">-</span><em class="ctext"></em></button>
+          <button class="act skill" data-key="u" id="btn-u"><i class="cd"></i><b>U</b><span class="sname">-</span><em class="ctext"></em></button>
+          <button class="act ult" data-key="i" id="btn-i"><i class="cd"></i><b>I</b><span class="sname">ULTIMATE</span><em class="ctext"></em></button>
+          <button class="act guard" data-key=" "><b>␣</b><span>GUARD</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Urutan script penting: file yang dipakai file lain harus dimuat lebih dulu -->
+<script src="js/effects.js"></script>
+<script src="js/characters.js"></script>
+<script src="js/skills.js"></script>
+<script src="js/arena.js"></script>
+<script src="js/enemyAI.js"></script>
+<script src="js/game.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
