@@ -201,6 +201,8 @@
     </div>
   </section>
 
+  <button class="fs-btn" id="btn-fullscreen" title="Layar penuh (F)" aria-label="Layar penuh">⛶</button>
+
   <!-- ====================== KREDIT PEMBUAT ====================== -->
   <footer class="game-credit" aria-label="Identitas pembuat game">
     <span><span class="credit-label">CREATED BY:</span><b>Dzaki Jaestrada Akbar</b></span>
@@ -218,5 +220,32 @@
 <script src="js/enemyAI.js"></script>
 <script src="js/game.js"></script>
 <script src="js/main.js"></script>
+<script>
+/* Layar penuh: otomatis saat mulai bertarung, tombol ⛶ di menu, atau tekan F. Tidak mengubah logika game. */
+(function () {
+  var root = document.documentElement;
+  function isFs() { return document.fullscreenElement || document.webkitFullscreenElement; }
+  function enter() {
+    var f = root.requestFullscreen || root.webkitRequestFullscreen;
+    if (f && !isFs()) { try { var p = f.call(root); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+  }
+  function exit() {
+    var f = document.exitFullscreen || document.webkitExitFullscreen;
+    if (f && isFs()) { try { f.call(document); } catch (e) {} }
+  }
+  function toggle() { isFs() ? exit() : enter(); }
+  document.getElementById('btn-fullscreen').addEventListener('click', toggle);
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[data-action="play"], [data-action="confirm-arena"], [data-action="rematch"]');
+    if (b) enter();
+  }, true);
+  document.addEventListener('keydown', function (e) {
+    if ((e.key === 'f' || e.key === 'F') && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (document.getElementById('screen-game').classList.contains('active')) return; /* F tidak dipakai saat bertarung */
+      toggle();
+    }
+  });
+})();
+</script>
 </body>
 </html>
