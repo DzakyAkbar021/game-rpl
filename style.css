@@ -15,6 +15,7 @@
   --font-title: 'Orbitron', 'Segoe UI', Arial, sans-serif;
   --font-ui: 'Rajdhani', 'Segoe UI', Arial, sans-serif;
   --ctrl-h: 118px;
+  --credit-h: 30px; /* tinggi strip kredit pembuat */
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -111,7 +112,7 @@ button { font-family: inherit; color: inherit; cursor: pointer; border: none; ba
 .menu-selected { margin-top: 3vh; font-size: 18px; letter-spacing: .1em; color: var(--muted); display: flex; gap: 14px; align-items: center; }
 .menu-selected b { color: var(--blue); font-family: var(--font-title); }
 .menu-selected .sep { color: var(--purple); font-size: 12px; }
-.menu-controls { position: absolute; left: 7vw; bottom: 3vh; display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 15px; color: var(--muted); max-width: 90vw; }
+.menu-controls { position: absolute; left: 7vw; bottom: calc(3vh + var(--credit-h)); display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 15px; color: var(--muted); max-width: 90vw; }
 kbd {
   display: inline-block; min-width: 24px; padding: 1px 7px; margin-right: 4px;
   font-family: var(--font-title); font-size: 12px; font-weight: 700; text-align: center;
@@ -202,11 +203,11 @@ input[type=range] { width: 220px; accent-color: var(--purple); }
 .seg button.active { border-color: var(--red); color: #fff; background: rgba(255, 42, 95, .3); box-shadow: 0 0 12px rgba(255, 42, 95, .5); }
 
 /* ---------------- Layar pertarungan ---------------- */
-#screen-game { background: #000; justify-content: flex-start; }
+#screen-game { background: #000; justify-content: flex-start; padding-bottom: var(--credit-h); }
 /* Lebar mengikuti tinggi layar agar canvas 2:1 + kontrol selalu muat */
 #game-wrap {
   container-type: inline-size;
-  width: min(100vw, calc((100vh - var(--ctrl-h)) * 2));
+  width: min(100vw, calc((100vh - var(--ctrl-h) - var(--credit-h)) * 2));
   margin: auto;
 }
 #stage { position: relative; width: 100%; aspect-ratio: 2 / 1; overflow: hidden; background: #000; box-shadow: 0 0 40px rgba(25, 211, 255, .25); }
@@ -331,4 +332,35 @@ input[type=range] { width: 220px; accent-color: var(--purple); }
   .detail-panel { width: 100%; }
   .act { width: 76px; } .act.ult { width: 88px; }
   .btn-neon { min-width: 220px; }
+}
+
+/* ---------------- Kredit pembuat ---------------- */
+.game-credit {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 50;
+  height: var(--credit-h);
+  display: flex; align-items: center; justify-content: center; flex-wrap: nowrap;
+  gap: 10px 14px; padding: 0 12px;
+  font-family: var(--font-title); font-size: 11px; font-weight: 500;
+  letter-spacing: .16em; text-transform: uppercase; white-space: nowrap;
+  color: var(--muted);
+  background: linear-gradient(90deg, transparent, rgba(10, 12, 34, .85) 20%, rgba(10, 12, 34, .85) 80%, transparent);
+  border-top: 1px solid transparent;
+  border-image: linear-gradient(90deg, transparent, var(--blue), var(--purple), transparent) 1;
+  pointer-events: none; /* tidak menghalangi klik/sentuh */
+}
+.game-credit b {
+  font-weight: 700; color: var(--blue);
+  text-shadow: 0 0 6px rgba(25, 211, 255, .7), 0 0 14px rgba(166, 60, 255, .45);
+}
+.game-credit .credit-label { color: var(--purple); opacity: .9; margin-right: 6px; }
+.game-credit .credit-sep { color: var(--purple); font-size: 8px; text-shadow: 0 0 8px var(--purple); }
+
+@media (max-width: 900px) {
+  :root { --credit-h: 26px; }
+  .game-credit { font-size: 9px; letter-spacing: .1em; gap: 8px; }
+}
+@media (max-width: 520px) {
+  :root { --credit-h: 36px; }
+  .game-credit { flex-direction: column; gap: 1px; font-size: 8.5px; letter-spacing: .08em; }
+  .game-credit .credit-sep { display: none; }
 }
